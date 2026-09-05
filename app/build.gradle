@@ -1,0 +1,61 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    namespace 'com.soleco.panel'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.soleco.panel"
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    // ÖNEMLİ: Sabit debug imzalama anahtarı.
+    // Bunu tanımlamazsak her CI derlemesinde (GitHub Actions) rastgele/geçici
+    // bir debug anahtarı kullanılır — bu da her yeni APK'nin farklı bir
+    // "imza"yla çıkması demek. Android, farklı imzalı bir APK'yı mevcut
+    // uygulamanın ÜZERİNE kurmaya izin vermez ("İşlem başarısız oldu" /
+    // imza uyuşmazlığı hatası verir) — bu yüzden her seferinde önce eski
+    // uygulamayı silmek zorunda kalıyordun. debug.keystore'u projeye sabitleyip
+    // her derlemede AYNI anahtarı kullanınca, artık yeni APK'yı eskisinin
+    // üzerine doğrudan kurabilirsin (uygulama verisi ve izinler korunur).
+    signingConfigs {
+        debug {
+            storeFile file("debug.keystore")
+            storePassword "android"
+            keyAlias "androiddebugkey"
+            keyPassword "android"
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
+        release {
+            minifyEnabled false
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+    buildFeatures {
+        viewBinding false
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
+}

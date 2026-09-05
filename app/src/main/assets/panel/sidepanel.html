@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SOLE & CO</title>
+  <link rel="stylesheet" href="sidepanel.css" />
+</head>
+<body>
+  <!-- HEADER -->
+  <div class="sc-header">
+    <div class="sc-header-brand">
+      <span class="sc-header-logo">👟</span>
+      <div class="sc-header-title">SOLE &amp; CO</div>
+      <button id="sc-refresh-images-btn" title="Ürün görsellerini yeniden çek">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+          <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- PHONE SECTION -->
+  <div class="sc-phone-section">
+    <div class="sc-phone-row">
+      <button id="sc-paste-btn" title="Panodan yapıştır">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/>
+          <rect x="8" y="2" width="8" height="4" rx="1"/>
+        </svg>
+      </button>
+      <div class="sc-input-wrap">
+        <svg class="sc-input-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+        </svg>
+        <input
+          id="sc-phone-input"
+          type="text"
+          placeholder="Telefon numarası"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button id="sc-clear-btn" title="Temizle" style="display:none">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="sc-actions">
+      <button id="sc-orders-btn" class="sc-action-btn sc-action-btn--orders">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 01-8 0"/>
+        </svg>
+        Sipariş Getir
+      </button>
+      <button id="sc-cargo-btn" class="sc-action-btn sc-action-btn--cargo">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+          <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+        </svg>
+        Kargo Takip
+      </button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="sc-body">
+    <div class="sc-splash">
+      <div class="sc-splash-icon">👟</div>
+      <div class="sc-splash-text">Telefon gir veya WhatsApp'tan çek,<br/>ardından işlem seç.</div>
+    </div>
+  </div>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>

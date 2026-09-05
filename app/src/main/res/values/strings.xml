@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">SOLE&amp;CO Panel</string>
+    <string name="accessibility_service_description">
+        WhatsApp sohbet ekranındaki müşteri numarasını okuyup SOLE&amp;CO
+        sipariş panelini otomatik dolduran servis. Mesaj içeriğini kaydetmez,
+        sadece sohbet başlığındaki numara/isim metnini okur.
+    </string>
+</resources>
