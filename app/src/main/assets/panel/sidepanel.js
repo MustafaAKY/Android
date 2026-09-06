@@ -611,7 +611,19 @@ cargoBtn.addEventListener('click', async () => {
 function fetchCargoAndroid(phone) {
   return new Promise((resolve, reject) => {
     if (!window.AndroidBridge) { reject(new Error('AndroidBridge yok')); return; }
+    let settled = false;
+    // Güvenlik ağı: Kotlin tarafı ne olursa olsun 15 sn içinde yanıt
+    // vermezse düğme sonsuza kadar pasif kalmasın diye zaman aşımına düşür.
+    const timeoutId = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      window.AndroidOnCargoResult = null;
+      reject(new Error('Zaman aşımı — kargo API yanıt vermedi, tekrar dene'));
+    }, 15000);
     window.AndroidOnCargoResult = (records) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeoutId);
       window.AndroidOnCargoResult = null;
       resolve(records || []);
     };
