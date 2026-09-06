@@ -488,21 +488,28 @@ class OverlayService : Service() {
          * background.js'teki FETCH_CARGO proxy'sinin Kotlin karşılığı.
          * HTTP (cleartext) + üçüncü parti API çağrısı native tarafta yapılır,
          * sonuç JSON olarak panele geri fısıldanır.
+         *
+         * ÖNEMLİ: iki aday numara (kendisi + sonuna "0" eklenmiş hali) için
+         * istekler PARALEL/eş zamanlı gidiyor — iki farklı arka plan
+         * thread'i aynı anda tamamlanabiliyor. Sayaç (pending) ve sonuç
+         * listesi (results) bu yüzden thread-safe olmak ZORUNDA; düz bir
+         * `var` ile azaltma yarış durumuna girip sayacı yanlışlıkla hiç
+         * sıfıra düşürmeyebiliyordu — bu da "Kargo Takip" düğmesinin
+         * bazen sonsuza kadar pasif kalmasına (JS tarafı hiç yanıt
+         * alamadığı için) sebep oluyordu.
          */
         @JavascriptInterface
         fun fetchCargo(phone: String) {
             val candidates = listOf(phone, phone + "0")
             val results = JSONArray()
-            var pending = candidates.size
+            val pending = java.util.concurrent.atomic.AtomicInteger(candidates.size)
 
-            fun finishIfDone() {
-                if (pending == 0) {
-                    mainHandler.post {
-                        panelWebView?.evaluateJavascript(
-                            "window.AndroidOnCargoResult && window.AndroidOnCargoResult(${results});",
-                            null
-                        )
-                    }
+            fun finish() {
+                mainHandler.post {
+                    panelWebView?.evaluateJavascript(
+                        "window.AndroidOnCargoResult && window.AndroidOnCargoResult(${results});",
+                        null
+                    )
                 }
             }
 
@@ -517,7 +524,7 @@ class OverlayService : Service() {
 
                 http.newCall(req).enqueue(object : Callback {
                     override fun onFailure(call: Call, e: IOException) {
-                        pending--; finishIfDone()
+                        if (pending.decrementAndGet() == 0) finish()
                     }
 
                     override fun onResponse(call: Call, response: Response) {
@@ -526,11 +533,15 @@ class OverlayService : Service() {
                                 val body = it.body?.string().orEmpty()
                                 runCatching {
                                     val arr = JSONObject(body).optJSONArray("data") ?: JSONArray()
-                                    for (i in 0 until arr.length()) results.put(arr.getJSONObject(i))
+                                    // results birden fazla thread'den doldurulabiliyor —
+                                    // JSONArray kendi başına thread-safe değil.
+                                    synchronized(results) {
+                                        for (i in 0 until arr.length()) results.put(arr.getJSONObject(i))
+                                    }
                                 }
                             }
                         }
-                        pending--; finishIfDone()
+                        if (pending.decrementAndGet() == 0) finish()
                     }
                 })
             }
