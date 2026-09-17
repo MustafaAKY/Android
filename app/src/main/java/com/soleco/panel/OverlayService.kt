@@ -115,6 +115,54 @@ class OverlayService : Service() {
         )
         addBubble()
         mainHandler.post(warmupRunnable)
+        Thread { applyRootFixes() }.start()
+    }
+
+    /**
+     * Telefon rootlu olduğu için iki şeyi otomatikleştiriyoruz:
+     *
+     * 1- Uygulamayı Android'in Doze/pil kısıtlama beyaz listesine ekliyoruz.
+     *    Ekran kilitliyken/telefon bir süre dokunulmadan dururken arka plan
+     *    ağ bağlantısının (özellikle MIUI'de) yavaşlatılması/soğutulması,
+     *    kilit açılınca ilk sorgunun uzun sürmesinin muhtemel sebebiydi.
+     *
+     * 2- Erişilebilirlik servisini, MIUI onu sessizce kapatmış olsa bile
+     *    her açılışta tekrar etkinleştiriyoruz — böylece elle Ayarlar'a
+     *    girip tekrar açman gerekmiyor.
+     *
+     * Root izni yoksa/reddedilirse (ilk seferde bir Magisk/SuperSU onay
+     * penceresi çıkacak) hiçbir şey kırılmadan sessizce geçilir — ikisi de
+     * "varsa faydalan" niteliğinde, zorunlu değil.
+     */
+    private fun applyRootFixes() {
+        runCatching { whitelistFromDoze() }
+        runCatching { ensureAccessibilityEnabled() }
+    }
+
+    private fun whitelistFromDoze() {
+        val p = Runtime.getRuntime().exec(arrayOf("su", "-c", "dumpsys deviceidle whitelist +$packageName"))
+        p.waitFor()
+    }
+
+    private fun ensureAccessibilityEnabled() {
+        val serviceId = "$packageName/${WhatsAppAccessibilityService::class.java.name}"
+
+        val getP = Runtime.getRuntime().exec(
+            arrayOf("su", "-c", "settings get secure enabled_accessibility_services")
+        )
+        val current = getP.inputStream.bufferedReader().readText().trim()
+        getP.waitFor()
+
+        if (current.contains(serviceId)) return // zaten açık, dokunma
+
+        // Kullanıcının başka etkin erişilebilirlik servisleri (ör. TalkBack)
+        // varsa onları SİLMEDEN, listeye ekliyoruz — üzerine yazmak yerine.
+        val merged = if (current.isBlank() || current == "null") serviceId else "$current:$serviceId"
+        val setP = Runtime.getRuntime().exec(arrayOf(
+            "su", "-c",
+            "settings put secure enabled_accessibility_services '$merged' && settings put secure accessibility_enabled 1"
+        ))
+        setP.waitFor()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
