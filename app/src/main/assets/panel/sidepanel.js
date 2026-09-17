@@ -643,10 +643,10 @@ body.addEventListener('click', async (e) => {
     window.AndroidBridge.copyText(msg);
     msgBtn.classList.add('copied');
     msgBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Kopyalandı!`;
-    setTimeout(() => {
-      msgBtn.classList.remove('copied');
-      msgBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Mesajı Kopyala`;
-    }, 2000);
+    // Kopyaladıktan sonra WhatsApp'a hemen geçebilesin diye panel kendiliğinden
+    // kapanıp baloncuk kenara küçülsün — "Kopyalandı!" yazısını görebilmen için
+    // ufak bir gecikmeyle.
+    setTimeout(() => { window.AndroidBridge && window.AndroidBridge.closePanel(); }, 500);
     return;
   }
 
@@ -657,6 +657,9 @@ body.addEventListener('click', async (e) => {
     const ok = window.AndroidBridge.insertToWhatsApp(msg);
     toast(ok ? '✍️ WhatsApp mesaj kutusuna yazıldı — kontrol edip gönder'
              : '⚠️ Yazılamadı — WhatsApp\'ta bir sohbet açık olmalı', ok ? 'success' : 'warn');
+    if (ok) {
+      setTimeout(() => { window.AndroidBridge && window.AndroidBridge.closePanel(); }, 500);
+    }
     return;
   }
 
