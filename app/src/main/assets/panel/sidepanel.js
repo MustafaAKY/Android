@@ -19,6 +19,22 @@ const cargoBtn    = document.getElementById('sc-cargo-btn');
 const body        = document.getElementById('sc-body');
 
 /* ══════════════════════════════════════════════════════════
+   ISINMA İSTEĞİ (WebView'in KENDİ fetch() bağlantısı için)
+   "Siparişi Getir" Kotlin/OkHttp değil, bu WebView'in kendi
+   fetch()'i üzerinden gidiyor — o yüzden bağlantıyı sıcak tutmak
+   için ısınma isteğinin de TAM OLARAK burada, aynı fetch() ile
+   atılması lazım. Panel artık kapatılıp açılsa bile aynı WebView
+   yaşamaya devam ettiği için bu zamanlayıcı da kesintisiz sürüyor.
+══════════════════════════════════════════════════════════ */
+function warmUpSupabaseConnection() {
+  fetch(`${SUPABASE_URL}/rest/v1/orders?select=id&limit=1`, {
+    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+  }).catch(() => { /* sessizce geç — sadece bağlantıyı sıcak tutmaya çalışıyoruz */ });
+}
+warmUpSupabaseConnection();
+setInterval(warmUpSupabaseConnection, 3 * 60 * 1000); // 3 dakikada bir
+
+/* ══════════════════════════════════════════════════════════
    PHONE UTILS
 ══════════════════════════════════════════════════════════ */
 function cleanPhone(raw) {
